@@ -93,3 +93,47 @@ class Database:
     async def delete_user(self, user_id):
         sql = "DELETE FROM users WHERE id = $1 RETURNING *"
         return await self.execute(sql, user_id, fetchrow=True)
+
+    # for students
+    async def create_student(self, first_name, last_name, group, joined_at=datetime.now()):
+        sql = "INSERT INTO student (first_name, last_name, group, joined_at) VALUES($1, $2, $3, $4) RETURNING *"
+        return await self.execute(sql, first_name, last_name, group, joined_at, fetchrow=True)
+
+    async def select_student(self, student_id):
+        sql = "SELECT * FROM student WHERE id = $1"
+        return await self.execute(sql, student_id, fetchrow=True)
+
+    async def select_all_students(self):
+        sql = "SELECT * FROM student"
+        return await self.execute(sql, fetch=True)
+
+    async def update_student(self, student_id, **kwargs):
+        set_clause = ", ".join([f"{key} = ${i + 1}" for i, key in enumerate(kwargs.keys())])
+        sql = f"UPDATE student SET {set_clause} WHERE id = ${len(kwargs) + 1} RETURNING *"
+        return await self.execute(sql, *kwargs.values(), student_id, fetchrow=True)
+
+    async def delete_student(self, student_id):
+        sql = "DELETE FROM student WHERE id = $1 RETURNING *"
+        return await self.execute(sql, student_id, fetchrow=True)
+
+    # for penalty balls
+    async def create_penalty_ball(self, penalty_owner_id, rated_by_id, ball, created_at=datetime.now()):
+        sql = "INSERT INTO penalty_ball (penalty_owner, rated_by, ball, created_at) VALUES($1, $2, $3, $4) RETURNING *"
+        return await self.execute(sql, penalty_owner_id, rated_by_id, ball, created_at, fetchrow=True)
+
+    async def select_penalty_ball(self, penalty_ball_id):
+        sql = "SELECT * FROM penalty_ball WHERE id = $1"
+        return await self.execute(sql, penalty_ball_id, fetchrow=True)
+
+    async def select_all_penalty_balls(self):
+        sql = "SELECT * FROM penalty_ball"
+        return await self.execute(sql, fetch=True)
+
+    async def update_penalty_ball(self, penalty_ball_id, **kwargs):
+        set_clause = ", ".join([f"{key} = ${i + 1}" for i, key in enumerate(kwargs.keys())])
+        sql = f"UPDATE penalty_ball SET {set_clause} WHERE id = ${len(kwargs) + 1} RETURNING *"
+        return await self.execute(sql, *kwargs.values(), penalty_ball_id, fetchrow=True)
+
+    async def delete_penalty_ball(self, penalty_ball_id):
+        sql = "DELETE FROM penalty_ball WHERE id = $1 RETURNING *"
+        return await self.execute(sql, penalty_ball_id, fetchrow=True)
