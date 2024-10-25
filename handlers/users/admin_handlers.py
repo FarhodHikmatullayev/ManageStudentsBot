@@ -31,6 +31,14 @@ async def get_actions_for_teachers(message: types.Message, state: FSMContext):
             await message.reply(text="⚠️ Bu buyruqdan foydalanish uchun sizda ruxsat mavjud emas!",
                                 reply_markup=back_to_menu)
         else:
+            teachers = await db.select_users(role='teacher')
+            text = "📚 Barcha o'qituvchilar:\n"
+            tr = 0
+            for teacher in teachers:
+                tr += 1
+                text += f"{tr}. {teacher['full_name']}\n"
+            if teachers:
+                await message.answer(text=text)
             await message.answer(text="Kerakli amalni tanlang 👇", reply_markup=teacher_actions_default_keyboard)
 
 

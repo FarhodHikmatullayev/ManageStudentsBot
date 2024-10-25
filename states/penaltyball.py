@@ -5,3 +5,7 @@ class CreatePenaltyBallState(StatesGroup):
     student_id = State()
     rated_by_id = State()
     ball = State()
+
+
+class GetPenaltyBallState(StatesGroup):
+    period = State()

@@ -103,6 +103,11 @@ class Database:
         sql = "SELECT * FROM student WHERE id = $1"
         return await self.execute(sql, student_id, fetchrow=True)
 
+    async def select_students(self, **kwargs):
+        sql = "SELECT * FROM student WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)
+
     async def select_all_students(self):
         sql = "SELECT * FROM student"
         return await self.execute(sql, fetch=True)
@@ -117,13 +122,28 @@ class Database:
         return await self.execute(sql, student_id, fetchrow=True)
 
     # for penalty balls
-    async def create_penalty_ball(self, penalty_owner_id, rated_by_id, ball, created_at=datetime.now()):
-        sql = "INSERT INTO penalty_ball (penalty_owner, rated_by, ball, created_at) VALUES($1, $2, $3, $4) RETURNING *"
-        return await self.execute(sql, penalty_owner_id, rated_by_id, ball, created_at, fetchrow=True)
+    async def create_penalty_ball(self, student_id, rated_by_id, ball, created_at=datetime.now()):
+        sql = "INSERT INTO penalty_ball (student_id, rated_by_id, ball, created_at) VALUES($1, $2, $3, $4) RETURNING *"
+        return await self.execute(sql, student_id, rated_by_id, ball, created_at, fetchrow=True)
 
     async def select_penalty_ball(self, penalty_ball_id):
         sql = "SELECT * FROM penalty_ball WHERE id = $1"
         return await self.execute(sql, penalty_ball_id, fetchrow=True)
+
+    async def select_penalty_balls(self, **kwargs):
+        sql = "SELECT * FROM penalty_ball WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)
+
+    async def select_penalty_ball_by_period(self, student_id, days):
+        today = datetime.now()
+        days_ago = today - timedelta(days=days)
+        sql = """
+                SELECT * FROM penalty_ball 
+                WHERE student_id = $1 
+                  AND created_at >= $2
+                """
+        return await self.execute(sql, student_id, days_ago, fetch=True)
 
     async def select_all_penalty_balls(self):
         sql = "SELECT * FROM penalty_ball"
